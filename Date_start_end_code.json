@@ -1,0 +1,3 @@
+db.atpplayers.aggregate([{$project: {"Date_Start": {$arrayElemAt:[{$split: ["$Date" , " - "]}, 0]}}}, {$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{$project: {"Date_End": {$arrayElemAt:[{$split: ["$Date" , " - "]}, 1]}}}, {$merge:"atpplayers"}])
