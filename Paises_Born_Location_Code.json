@@ -1,0 +1,82 @@
+mongoimport --db atp2 --collection atpplayers --drop --file C:/data/atpplayers.json 
+mongoimport --db atp2 --collection country --drop --file C:/data/paises.json --jsonArray
+
+---##separa array Born/Location nos 3 indices !mas tem que ser noutra versao (>4) cc nao add na mesma coleçao (3min. cada)
+
+db.atpplayers.aggregate([{$project: {"Born0": {$arrayElemAt:[{$split: ["$Born" , ", "]}, 0]}}}, {$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{$project: {"Born1": {$arrayElemAt:[{$split: ["$Born" , ", "]}, 1]}}}, {$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{$project: {"Born2": {$arrayElemAt:[{$split: ["$Born" , ", "]}, 2]}}}, {$merge:"atpplayers"}])
+
+--
+
+db.atpplayers.aggregate([{$project: {"Location0": {$arrayElemAt:[{$split: ["$Location" , ", "]}, 0]}}}, {$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{$project: {"Location1": {$arrayElemAt:[{$split: ["$Location" , ", "]}, 1]}}}, {$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{$project: {"Location2": {$arrayElemAt:[{$split: ["$Location" , ", "]}, 2]}}}, {$merge:"atpplayers"}])
+
+
+---#####agrupa paises de cada indice numa coluna unica Pais_Born e Pais_Location
+
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Born0",foreignField:"Name",as:"Pais_Born"}},{$match:{"Pais_Born":{$ne:[]}}},{$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Born1",foreignField:"Name",as:"Pais_Born"}},{$match:{"Pais_Born":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Born2",foreignField:"Name",as:"Pais_Born"}},{$match:{"Pais_Born":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+
+---
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Born0",foreignField:"Code",as:"Pais_Born"}},{$match:{"Pais_Born":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Born1",foreignField:"Code",as:"Pais_Born"}},{$match:{"Pais_Born":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Born2",foreignField:"Code",as:"Pais_Born"}},{$match:{"Pais_Born":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+
+-----
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Location0",foreignField:"Name",as:"Pais_Location"}},{$match:{"Pais_Location":{$ne:[]}}},{$merge:"atpplayers"}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Location1",foreignField:"Name",as:"Pais_Location"}},{$match:{"Pais_Location":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Location2",foreignField:"Name",as:"Pais_Location"}},{$match:{"Pais_Location":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+
+--
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Location0",foreignField:"Code",as:"Pais_Location"}},{$match:{"Pais_Location":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Location1",foreignField:"Code",as:"Pais_Location"}},{$match:{"Pais_Location":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"Location2",foreignField:"Code",as:"Pais_Location"}},{$match:{"Pais_Location":{$ne:[]}}},{$merge:{into:"atpplayers",on:"_id"}}])
+
+
+---
+##CONSULTAS COUNT
+db.atpplayers.find({"Pais_Location":{$ne:null}}).count()
+db.atpplayers.find({"Pais_Born":{$ne:null}}).count()
+
+##consulta USA count
+db.atpplayers.find({"Born0":{$regex:"U.S.A"}}).count()   #158499
+
+##lookup tudo junto em vez de separar em arrays, tirando só a virgula (BAD ! não conta tudo)
+db.atpplayers.aggregate([{"$lookup":{from:"country",localField:"country",foreignField:"Name",as:"country_total"}},{$match:{"country_total":{$ne:[]}}},{$merge:"atpplayers"}])
+
+db.atpplayers.find({"country_total":{$ne:null}}).count()
+
+##encontrar codigo pais com tamanho 3
+db.atpplayers.find({Born0:{$exists:true},$expr:{$gt:[{$strLenCP:"$Born0"},2]},$expr:{$lt:[{$strLenCP:"$Born0"},4]}})
+
+##eliminar fields
+db.atpplayers.updateMany({},{#unset:{Pais_Bornx:1}},{multi:true})
+
+##rename fields
+db.atpplayers.updateMany({},{$rename:{"field_antigo":"field_novo"}})
+
+
+
+---
+
+mongoexport --db atp2 --collection atpplayers --type=csv --fields _id,PlayerName,Born,Born0,Born1,Born2,Pais_Born,Location,Location0,Location1,Location2,Pais_Location --out c:/atpplayers_paises.csv
