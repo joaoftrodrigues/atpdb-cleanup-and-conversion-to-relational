@@ -26,3 +26,12 @@ db.atpplayers.aggregate([
     {$project: { "uniqueIds":1, count: { $size:"$uniqueIds" }}},
     {$match: { count: {"$gt": 1}}},
 ]);
+
+// Código Verificar Se Joga Com Ele Próprio
+
+db.atpplayers.aggregate([
+    {$group: { _id: "$PlayerName",
+               Oponents: {$addToSet: "$Oponent"}, 
+              } },
+    {$match: { Oponents: { $eq: "_id" } } }
+]);
