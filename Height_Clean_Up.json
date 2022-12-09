@@ -1,0 +1,21 @@
+// Check players out of boundaries
+db.atpplayers.aggregate([{ $match: { Height: { $lt: 140}, Height: { $gt: 220} }}]);
+
+
+// Set players with height less than 140cm to "Not Available(NA)"
+db.atpplayers.update(
+   {Height: { $lt: 140}},
+   {$set: {Height: "NA"}},
+   {
+      multi: true,
+   }
+);
+
+// Set players with height greater than 220cm to "Not Available(NA)"
+db.atpplayers.update(
+   {Height: { $gt: 220}},
+   {$set: {Height: "NA"}},
+   {
+      multi: true,
+   }
+)
