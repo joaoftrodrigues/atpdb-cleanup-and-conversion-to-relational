@@ -1,0 +1,28 @@
+// Código para gerar playerID
+
+db.atpplayers.aggregate(
+    [ 
+      {$addFields: {PlayerArray: {  $regexFind: { input: "$LinkPlayer", regex: "/([A-Za-z0-9]{4})/" }}}},
+      {$out: {db: "atp", coll: "atpplayers"}}
+    ]
+  );
+db.atpplayers.aggregate(
+    [ 
+      {$addFields: {"PlayerID": { $first: "$PlayerArray.captures" }}},
+      {$out: {db: "atp", coll: "atpplayers"}}
+    ]
+  );
+db.atpplayers.update({}, 
+    {$unset: { PlayerArray: ""}},
+    {multi: true}
+  );
+
+// Código Verificar Nomes Duplicados
+
+db.atpplayers.aggregate([
+    {$group: { _id: "$PlayerName",
+               uniqueIds: {$addToSet: "$PlayerID"}, 
+              } },
+    {$project: { "uniqueIds":1, count: { $size:"$uniqueIds" }}},
+    {$match: { count: {"$gt": 1}}},
+]);
