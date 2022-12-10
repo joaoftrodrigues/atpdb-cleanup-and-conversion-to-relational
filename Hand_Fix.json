@@ -1,0 +1,14 @@
+// Hand Field Split (Cascade needs to be respected)
+
+db.atpplayers.aggregate([
+  
+  {$project: {"Backhand_Fix": {$arrayElemAt:[{$split: ["$Hand" , ", "]}, 1]}}},
+  {$project: {"Backhand": {$arrayElemAt:[{$split: ["$Backhand_Fix" , " "]}, 0]}}}, 
+  {$merge:"atpplayers"}
+  ]);
+
+db.atpplayers.aggregate([
+  
+  {$project: {"Hand": {$arrayElemAt:[{$split: ["$Hand" , ", "]}, 0]}}}, 
+  {$merge:"atpplayers"}
+  ]);
