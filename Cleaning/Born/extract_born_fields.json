@@ -1,0 +1,8 @@
+db.atpplayers.aggregate([ { $addFields: {BornCity: { $regexFind: { input: "$Born", regex: "[^,]*" }}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+db.atpplayers.updateMany({}, [{$set: {"BornCity": "$BornCity.match"}}]);
+db.atpplayers.aggregate([ { $addFields: {BornState: { $regexFind: { input: "$Born", regex: ",[ ]*([^,]*)," }}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+db.atpplayers.updateMany({}, [{$set: {BornState: {$first: "$BornState.captures"}}}]);
+db.atpplayers.aggregate([{ $addFields: {BornCountry: { $regexFind: { input: "$Born", regex: "([ ]*[a-zA-Z ]*,[ ]?[a-zA-Z ]*,[ ]*([ a-zA-Z.]*))|([\w ]*,[ ]*([ a-zA-Z.]*))" }}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+db.atpplayers.updateMany({}, [{$set: {BornCountry: "$BornCountry.captures"}}]);
+db.atpplayers.updateMany({}, {$pull: {BornCountry: null}});
+db.atpplayers.updateMany({}, [{$set: {BornCountry: {$first: {$slice: ["$BornCountry",-1,1]}}}}])
