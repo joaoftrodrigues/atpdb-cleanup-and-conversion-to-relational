@@ -19,3 +19,7 @@ db.atpplayers.update(
       multi: true,
    }
 )
+
+
+// Set players with NA to null
+db.atpplayers.updateMany({"Height":"NA"},{$set:{"Height":null}})
