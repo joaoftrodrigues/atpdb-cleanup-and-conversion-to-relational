@@ -1,0 +1,35 @@
+// Separação dos tiebreakers
+
+db.atpplayers.aggregate([{$addFields: {Tiebreaker: { $regexFind: { input:{$toString: "$Score"}, regex: "([0-9]{2})-([0-9]{2})"}}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+db.atpplayers.updateMany({}, [{$set: {Tiebreaker: "$Tiebreaker.match"}}]);
+
+
+// Separação das informações dos jogos
+
+db.atpplayers.aggregate([{$addFields: {Game_Info: { $regexFind: { input:{$toString: "$Score"}, regex: "([A-Z]/[A-Z])|([A-Z]{3})"}}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+db.atpplayers.updateMany({}, [{$set: {Game_Info: "$Game_Info.match"}}]);
+
+
+
+// Limpeza do Score para separação
+
+db.atpplayers.updateMany({ Score: { $regex: "[A-Z]/[A-Z]" } }, [{ $set: { Score_chaged: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]/[A-Z]" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]/[A-Z]" ] }, 1 ]}]}}}]);
+db.atpplayers.updateMany({ Score: { $regex: "[A-Z]{3}" } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]{3}" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]{3}" ] }, 1 ]}]}}}]);
+db.atpplayers.updateMany({ Score: { $regex: "[0-9]{2}-[0-9]{2}" } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[0-9]{2}-[0-9]{2}" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[0-9]{2}-[0-9]{2}" ] }, 1 ]}]}}}]);
+db.atpplayers.updateMany({ Score: { $regex: ", " } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", ", " ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", ", " ] }, 1 ]}]}}}]);
+
+
+// Separação dos scores
+
+db.atpplayers.aggregate([{$project: {"Score_str": {$split: [{ $toString: '$Score',}, ' '] }}}, {$merge:"atpplayers"}]);
+db.atpplayers.aggregate([{$project: {"Score1": {$arrayElemAt:["$Score_str", 0]}}}, {$merge:"atpplayers"}]);
+db.atpplayers.aggregate([{$project: {"Score2": {$arrayElemAt:["$Score_str", 1]}}}, {$merge:"atpplayers"}]);
+db.atpplayers.aggregate([{$project: {"Score3": {$arrayElemAt:["$Score_str", 2]}}}, {$merge:"atpplayers"}]);
+db.atpplayers.aggregate([{$project: {"Score4": {$arrayElemAt:["$Score_str", 3]}}}, {$merge:"atpplayers"}]);
+db.atpplayers.aggregate([{$project: {"Score5": {$arrayElemAt:["$Score_str", 4]}}}, {$merge:"atpplayers"}])
+
+
+// Remover colunas "Score" e "Score_str"
+
+db.atpplayers.updateMany({}, {"$unset": {"Score": 1}})
+db.atpplayers.updateMany({}, {"$unset": {"Score_str": 1}})
