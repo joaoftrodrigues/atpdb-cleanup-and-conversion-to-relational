@@ -1,0 +1,65 @@
+use('atp');
+
+db.atpplayers.aggregate([{$addFields: {Tiebreaker: { $regexFind: { input: {$toString: "$Score"}, regex: "([0-9]{2})-([0-9]{2})"}}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.updateMany({}, [{$set: {Tiebreaker: "$Tiebreaker.match"}}]);
+
+db.atpplayers.aggregate([{$addFields: {Game_Info: { $regexFind: { input:{$toString: "$Score"}, regex: "([A-Z]/[A-Z])|([A-Z]{3})"}}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.updateMany({}, [{$set: {Game_Info: "$Game_Info.match"}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: "[A-Z]/[A-Z]" } }, [{ $set: { Score_chaged: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]/[A-Z]" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]/[A-Z]" ] }, 1 ]}]}}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: "[A-Z]{3}" } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]{3}" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]{3}" ] }, 1 ]}]}}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: "[0-9]{2}-[0-9]{2}" } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[0-9]{2}-[0-9]{2}" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[0-9]{2}-[0-9]{2}" ] }, 1 ]}]}}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: ", " } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", ", " ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", ", " ] }, 1 ]}]}}}]);
+  
+db.atpplayers.aggregate([{$addFields: {"Score_str": {$split: [{ $toString: '$Score',}, ' '] }}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score1": {$arrayElemAt:["$Score_str", 0]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score2": {$arrayElemAt:["$Score_str", 1]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score3": {$arrayElemAt:["$Score_str", 2]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score4": {$arrayElemAt:["$Score_str", 3]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score5": {$arrayElemAt:["$Score_str", 4]}}}, {$out: {db: "atp", coll: "atpplayers"}}])
+
+db.atpplayers.aggregate([{$addFields: {"Primary_Hand": {$arrayElemAt:[{$split: ["$Hand" , ", "]}, 0]}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Backhand_Fix": {$arrayElemAt:[{$split: ["$Hand" , ", "]}, 1]}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Backhand": {$arrayElemAt:[{$split: ["$Backhand_Fix" , " "]}, 0]}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.updateMany({Height: { $lt: 140}}, {$set: {Height: null}});
+
+db.atpplayers.updateMany({Height: { $gt: 220}}, {$set: {Height: null}});
+
+db.atpplayers.aggregate([{$addFields: {"Date_Start": {$arrayElemAt:[{$split: ["$Date" , " - "]}, 0]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Date_End": {$arrayElemAt:[{$split: ["$Date" , " - "]}, 1]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Date_Start": { $replaceAll: { input: "$Date_Start", find: ".", replacement: "-" } }}},{$addFields:{"Date_End": { $replaceAll: { input: "$Date_End", find: ".", replacement: "-" }}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {D_In: {$toDate: "$Date_Start"}}},{$addFields: {D_Out: {$toDate: "$Date_End"}}},{$addFields: {ab_test: {$cmp: ["$D_In","$D_Out"]}}},{$match: {$and: [{ab_test:{$eq:1}}, {D_Out:{$ne:null}}]}},{$addFields: {Date_Start_fix: "$Date_End"}},{$addFields: {Date_End_fix: "$Date_Start"}},{$addFields: {Date_Start: "$Date_Start_fix"}},{$addFields: {Date_End: "$Date_End_fix"}},{$unset: ["D_In","D_Out","ab_test","Date_Start_fix", "Date_End_fix"]},{$merge: { into:  { db:"atp", coll: "atpplayers" },on: [ "Date_Start", "Date_End"],whenMatched: "replace"}}]);
+
+db.atpplayers.aggregate([{$addFields: {PlayerArray: {  $regexFind: { input: "$LinkPlayer", regex: "/([A-Za-z0-9]{4})/" }}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"PlayerID": { $first: "$PlayerArray.captures" }}},{$unset:  "PlayerArray" },{$out: {db: "atp", coll: "atpplayers"}} ]);
+
+db.atpplayers.updateMany({"GameRank":"-"},{$set:{"GameRank":null}});
+
+db.atpplayers.updateMany({"GameRank":""},{$set:{"GameRank":null}});
+
+db.atpplayers.updateMany({"WL":""},{$set:{"WL":null}});
+
+db.atpplayers.updateMany({},{$unset: {"Backhand_Fix": 1}});
+
+db.atpplayers.updateMany({},{$unset: {"Score_str": 1}});
+
+db.atpplayers.aggregate([{$addFields: {_ID:"$_id" }  },{$out:{db:"atp",coll:"atpplayers"}}] );
+
+db.atpplayers.aggregate([{$addFields: {_ID:{$toString: "$_ID" }}},{$out:{db:"atp",coll:"atpplayers"}}] );
