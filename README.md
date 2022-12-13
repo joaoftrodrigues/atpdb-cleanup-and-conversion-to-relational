@@ -8,7 +8,7 @@ Further, after cleaning process, the database structure will be adapted to a rel
 # Data
 
 - _atpplayers.json_
-- _countries.csv_
+- _countries_code.csv_
 - _wikipedia-iso-country-codes.csv_
 
 
