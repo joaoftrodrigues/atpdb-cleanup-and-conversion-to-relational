@@ -6,3 +6,4 @@ db.atpplayers.aggregate([{ $addFields: {Country: { $regexFind: { input: "$Locati
 db.atpplayers.updateMany({}, [{$set: {Country: "$Country.captures"}}]);
 db.atpplayers.updateMany({}, {$pull: {Country: null}});
 db.atpplayers.updateMany({}, [{$set: {Country: {$first: {$slice: ["$Country",-1,1]}}}}])
+db.atpplayers.updateMany({Country: null}, [{$set: {Country: "$Location"}}])
