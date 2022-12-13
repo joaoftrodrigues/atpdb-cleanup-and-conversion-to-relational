@@ -26,7 +26,7 @@ To run the queries, it's needed to import all the 3 files, which can be done wit
 **ATP Players**
 `mongoimport --db atp --collection atpplayers --drop --file <FILEPATH>`
 
-**Original countries with 2 letters code **
+**Original countries with 2 letters code**
 `mongoimport --db atp --collection countries --drop --file <FILEPATH> --type=csv --headerline`
 
 **Countries with 3 letters code**
