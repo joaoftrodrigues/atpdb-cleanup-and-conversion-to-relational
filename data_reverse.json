@@ -1,0 +1,16 @@
+db.atpplayers.aggregate([
+
+     {$addFields: {D_In: {$toDate: "$Date_Start"}}},
+     {$addFields: {D_Out: {$toDate: "$Date_End"}}},
+     {$addFields: {ab_test: {$cmp: ["$D_In","$D_Out"]}}},
+     {$match: {$and: [{ab_test:{$eq:1}}, {D_Out:{$ne:null}}]}},
+     {$addFields: {Date_Start_fix: "$Date_End"}},
+     {$addFields: {Date_End_fix: "$Date_Start"}},
+     {$addFields: {Date_Start: "$Date_Start_fix"}},
+     {$addFields: {Date_End: "$Date_End_fix"}},
+     {$unset: ["D_In","D_Out","ab_test","Date_Start_fix", "Date_End_fix"]},
+     {$merge: { into:  { db:"atp", coll: "atpplayers" },on: [ "Date_Start", "Date_End"],whenMatched: "replace"}}
+
+]);
+
+//Tudo num só aggregate, incluíndo os $unset
