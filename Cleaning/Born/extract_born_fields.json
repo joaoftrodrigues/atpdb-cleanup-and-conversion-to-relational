@@ -6,3 +6,4 @@ db.atpplayers.aggregate([{ $addFields: {BornCountry: { $regexFind: { input: "$Bo
 db.atpplayers.updateMany({}, [{$set: {BornCountry: "$BornCountry.captures"}}]);
 db.atpplayers.updateMany({}, {$pull: {BornCountry: null}});
 db.atpplayers.updateMany({}, [{$set: {BornCountry: {$first: {$slice: ["$BornCountry",-1,1]}}}}])
+db.atpplayers.updateMany({BornCountry: null}, [{$set: {Country: "$Born"}}])
