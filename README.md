@@ -32,49 +32,8 @@ To run the queries, it's needed to import all the 3 files, which can be done wit
 **Countries with 3 letters code**
 `mongoimport --db atp --collection countryCodes3L --drop --file <FILEPATH> --type=csv --headerline`
 
-## Exports
-To export CSV tables from MongoDB
+## Queries
+**1**
 
-**Player table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,PlayerID,PlayerName,Height,LinkPlayer --out c:\table_Player.csv`
-
-**HandSkill table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Primary_Hand,Backhand --out c:\table_HandSkill.csv`
-
-**Tournament table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,Date_Start,Date_End,Ground --out c:\table_Tournament.csv`
-
-**GameRound table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,GameRound,GameRank,Oponent,WL --out c:\table_GameRound.csv`
-
-**Score table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,GameRound,Score1,Score2,Score3,Score4,Score5 --out c:\table_Score.csv`
-
-**Born table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,BornCity,BornState,BornCountry --out c:\table_Born.csv`
-
-**Location table**
-
-`mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,City,State,Country --out c:\table_Location.csv`
-
-**_______>FAST WAY**
-
-These export are already at Code files as 7 Zip's, one per table
-
-
-## MySQL
-1 - Export atp.sql file 
-
-2 - Import atp.sql file into your MySQL software
-
-3 - Migrate CSV data files (7 zip's) with this code in your SQL window at tour MySQL :
-
-`
-
+`SELECT player.Name,COUNT(gameround.Result) from player,gameround,tournament where player.ID=gameround.ID and gameround.ID=tournament.ID and gameround.Result="W" and tournament.Ground="Hard" GROUP BY player.Name ORDER BY 2 DESC limit 5`
 
