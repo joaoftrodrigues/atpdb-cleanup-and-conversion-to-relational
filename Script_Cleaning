@@ -1,0 +1,53 @@
+use('atp');
+
+var duplicates = []; db.atpplayers.aggregate([{$group: { _id: { PlayerName: "$PlayerName", Born: "$Born", Date:  "$Date", GameRank: "$GameRank", GameRound: "$GameRound", Ground: "$Ground", Hand: "$Hand", Height: "$Height", LinkPlayer: "$LinkPlayer", Location: "$Location", Oponent: "$Oponent", Prize: "$Prize", Score: "$Score", Tournament: "$Tournament", WL: "$WL" }, dupli: {"$addToSet": "$_id"}, totalIds: { $sum: 1, } } }, {$match: {totalIds: {$gt: 1}}}, ], {allowDiskUse: true} ).forEach(function(doc){ doc.dupli.shift(); doc.dupli.forEach(function(dupId){ duplicates.push(dupId); } ) }); db.atpplayers.remove({_id:{$in:duplicates}});
+
+db.atpplayers.aggregate([{$addFields: {Tiebreaker_fix: { $regexFind: { input: {$toString: "$Score"}, regex: "([0-9]{2})-([0-9]{2})"}}}},{$addFields: {Tiebreaker: "$Tiebreaker_fix.match"}},{$unset: ["Tiebreaker_fix"]},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {Game_Info_fix: { $regexFind: { input:{$toString: "$Score"}, regex: "([A-Z]/[A-Z])|([A-Z]{3})"}}}}, {$addFields: {Game_Info: "$Game_Info_fix.match"}},{$unset: ["Game_Info_fix"]},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: "[A-Z]/[A-Z]" } }, [{ $set: { Score_chaged: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]/[A-Z]" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]/[A-Z]" ] }, 1 ]}]}}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: "[A-Z]{3}" } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]{3}" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[A-Z]{3}" ] }, 1 ]}]}}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: "[0-9]{2}-[0-9]{2}" } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", "[0-9]{2}-[0-9]{2}" ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", "[0-9]{2}-[0-9]{2}" ] }, 1 ]}]}}}]);
+
+db.atpplayers.updateMany({ Score: { $regex: ", " } }, [{ $set: { Score: { $concat: [ { $arrayElemAt: [ { $split: [ "$Score", ", " ] }, 0 ] }, "", { $arrayElemAt: [ { $split: [ "$Score", ", " ] }, 1 ]}]}}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score_str": {$split: [{ $toString: '$Score',}, ' '] }}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score1": {$convert: {input: {$arrayElemAt:["$Score_str", 0]},to: "int", onError: Int32("0"), onNull: Int32("0")}}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score2": {$convert: {input: {$arrayElemAt:["$Score_str", 1]},to: "int", onError: Int32("0"), onNull: Int32("0")}}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score3": {$convert: {input: {$arrayElemAt:["$Score_str", 2]},to: "int", onError: Int32("0"), onNull: Int32("0")}}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score4": {$convert: {input: {$arrayElemAt:["$Score_str", 3]},to: "int", onError: Int32("0"), onNull: Int32("0")}}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Score5": {$convert: {input: {$arrayElemAt:["$Score_str", 4]},to: "int", onError: Int32("0"), onNull: Int32("0")}}}},{$unset: ["Score_str"]},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Primary_Hand": {$arrayElemAt:[{$split: ["$Hand" , ", "]}, 0]}}},{$addFields: {"Backhand_Fix": {$arrayElemAt:[{$split: ["$Hand" , ", "]}, 1]}}},{$addFields: {"Backhand": {$arrayElemAt:[{$split: ["$Backhand_Fix" , " "]}, 0]}}},{$unset: ["Backhand_Fix"]},{$out: {db: "atp", coll: "atpplayers"}}]);  
+
+db.atpplayers.aggregate([{$addFields: {"Date_Start": {$arrayElemAt:[{$split: ["$Date" , " - "]}, 0]}}},{$addFields: {"Date_End": {$arrayElemAt:[{$split: ["$Date" , " - "]}, 1]}}}, {$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {"Date_Start": { $replaceAll: { input: "$Date_Start", find: ".", replacement: "-" } }}},{$addFields:{"Date_End": { $replaceAll: { input: "$Date_End", find: ".", replacement: "-" }}}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {D_In: {$toDate: "$Date_Start"}}},{$addFields: {D_Out: {$toDate: "$Date_End"}}},{$addFields: {ab_test: {$cmp: ["$D_In","$D_Out"]}}},{$match: {$and: [{ab_test:{$eq:1}}, {D_Out:{$ne:null}}]}},{$addFields: {Date_Start_fix: "$Date_End"}},{$addFields: {Date_End_fix: "$Date_Start"}},{$addFields: {Date_Start: "$Date_Start_fix"}},{$addFields: {Date_End: "$Date_End_fix"}},{$unset: ["D_In","D_Out","ab_test","Date_Start_fix", "Date_End_fix"]},{$merge: { into:  { db:"atp", coll: "atpplayers" }, on: "_id",whenMatched: "replace"}}]);
+
+db.atpplayers.aggregate([{$addFields: {PlayerArray: {  $regexFind: { input: "$LinkPlayer", regex: "/([A-Za-z0-9]{4})/" }}}},{$addFields: {"PlayerID": { $first: "$PlayerArray.captures" }}},{$unset:  ["PlayerArray"] },{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.aggregate([{$addFields: {_ID:{$toString: "$_id" }}},{$out: {db: "atp", coll: "atpplayers"}}]);
+
+db.atpplayers.updateMany({"Height": { $lt: 140}}, {$set: {"Height": "NULL"}});
+
+db.atpplayers.updateMany({"Height": { $gt: 220}}, {$set: {"Height": "NULL"}});
+
+db.atpplayers.updateMany({"Prize":""},{$set:{"Prize":"NULL"}});
+
+db.atpplayers.updateMany({"Oponent":""},{$set:{"Oponent":"NULL"}});
+
+db.atpplayers.updateMany({"GameRank":"-"},{$set:{"GameRank":"NULL"}});
+
+db.atpplayers.updateMany({"GameRank":""},{$set:{"GameRank":"NULL"}});
+
+db.atpplayers.updateMany({"WL":""},{$set:{"WL":"NULL"}});
