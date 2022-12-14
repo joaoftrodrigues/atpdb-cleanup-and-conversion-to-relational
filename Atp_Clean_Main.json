@@ -1,5 +1,7 @@
 use('atp');
 
+var duplicates = []; db.atpplayers.aggregate([{$group: { _id: { PlayerName: "$PlayerName", Born: "$Born", Date:  "$Date", GameRank: "$GameRank", GameRound: "$GameRound", Ground: "$Ground", Hand: "$Hand", Height: "$Height", LinkPlayer: "$LinkPlayer", Location: "$Location", Oponent: "$Oponent", Prize: "$Prize", Score: "$Score", Tournament: "$Tournament", WL: "$WL" }, dupli: {"$addToSet": "$_id"}, totalIds: { $sum: 1, } } }, {$match: {totalIds: {$gt: 1}}}, ], {allowDiskUse: true} ).forEach(function(doc){ doc.dupli.shift(); doc.dupli.forEach(function(dupId){ duplicates.push(dupId); } ) }); db.atpplayers.remove({_id:{$in:duplicates}});
+
 db.atpplayers.aggregate([{$addFields: {Tiebreaker_fix: { $regexFind: { input: {$toString: "$Score"}, regex: "([0-9]{2})-([0-9]{2})"}}}},{$addFields: {Tiebreaker: "$Tiebreaker_fix.match"}},{$unset: ["Tiebreaker_fix"]},{$out: {db: "atp", coll: "atpplayers"}}]);
 
 db.atpplayers.aggregate([{$addFields: {Game_Info_fix: { $regexFind: { input:{$toString: "$Score"}, regex: "([A-Z]/[A-Z])|([A-Z]{3})"}}}}, {$addFields: {Game_Info: "$Game_Info_fix.match"}},{$unset: ["Game_Info_fix"]},{$out: {db: "atp", coll: "atpplayers"}}]);
