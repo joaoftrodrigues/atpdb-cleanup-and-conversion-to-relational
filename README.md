@@ -63,7 +63,7 @@ To export CSV tables from MongoDB
 
 `mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,City,State,Country --out c:\table_Location.csv`
 
-## _______>FAST WAY - CSV Tabels
+** _______>FAST WAY **
 These export are already at Code files as 7 Zip's, one per table
 
 
