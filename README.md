@@ -63,5 +63,17 @@ To export CSV tables from MongoDB
 
 `mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,City,State,Country --out c:\table_Location.csv`
 
-## CSV Tabels
+## _______>FAST WAY - CSV Tabels
 These export are already at Code files as 7 Zip's, one per table
+
+
+## MySQL
+1 - Export atp.sql file 
+
+2 - Import atp.sql file into your MySQL software
+
+3 - Migrate CSV data files (7 zip's) with this code in your SQL window at tour MySQL :
+
+`
+
+
