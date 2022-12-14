@@ -106,3 +106,6 @@ db.atpplayers.updateMany({Country:"TBA", Tournament: {$regex: "U.S.A."}}, {$set:
 db.atpplayers.updateMany({Country:"TBA", Tournament: {$regex: "Zimbabwe"}}, {$set: {Country: "Zimbabwe"}});
 db.atpplayers.updateMany({Country: "TBC"}, {$set: {Country: "United Kingdom"}});
 db.atpplayers.updateMany({Country: "TBD"}, {$set: {Country: "United States"}})
+db.atpplayers.updateMany({"Country":null},{$set:{"Country":"NULL"}})
+db.atpplayers.updateMany({"City":null},{$set:{"City":"NULL"}})
+db.atpplayers.updateMany({"State":null},{$set:{"State":"NULL"}})
