@@ -33,6 +33,7 @@ To run the queries, it's needed to import all the 3 files, which can be done wit
 `mongoimport --db atp --collection countryCodes3L --drop --file <FILEPATH> --type=csv --headerline`
 
 ## Exports
+To export CSV tables from MongoDB
 
 **Player table**
 
