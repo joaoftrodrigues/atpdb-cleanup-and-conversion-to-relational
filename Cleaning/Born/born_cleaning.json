@@ -96,6 +96,7 @@ db.atpplayers.updateMany({BornCountry: "U.A.E."}, {$set: {BornCountry: "United A
 db.atpplayers.updateMany({BornCountry: "Novaya Kakhovka"}, {$set: {BornCountry: "Ukraine"}});
 db.atpplayers.updateMany({BornCountry: "Yug."},{$set: {BornCountry: "Yugoslavia"}});
 db.atpplayers.updateMany({BornCountry: "Harare"}, {$set: {BornCountry: "Zimbabwe"}})
+db.atpplayers.updateMany({Country: {$in: ["England","Northern Ireland","Scotland","Wales"]}}, {$set:{Country: "United Kingdom", State: "$Country"}})
 db.atpplayers.updateMany({"BornCity":null},{$set:{"BornCity":"NULL"}})
 db.atpplayers.updateMany({"BornState":null},{$set:{"BornState":"NULL"}})
 db.atpplayers.updateMany({"BornCountry":null},{$set:{"BornCountry":"NULL"}})
