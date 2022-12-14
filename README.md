@@ -31,3 +31,19 @@ To run the queries, it's needed to import all the 3 files, which can be done wit
 
 **Countries with 3 letters code**
 `mongoimport --db atp --collection countryCodes3L --drop --file <FILEPATH> --type=csv --headerline`
+
+## Exports
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,PlayerID,PlayerName,Height,LinkPlayer --out c:\table_Player.csv
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Primary_Hand,Backhand --out c:\table_HandSkill.csv
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,Date_Start,Date_End,Ground --out c:\table_Tournament.csv
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,GameRound,GameRank,Oponent,WL --out c:\table_GameRound.csv
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,GameRound,Score1,Score2,Score3,Score4,Score5 --out c:\table_Score.csv
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,BornCity,BornState,BornCountry --out c:\table_Born.csv
+
+mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,City,State,Country --out c:\table_Location.csv
