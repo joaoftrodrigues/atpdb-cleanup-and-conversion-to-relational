@@ -62,3 +62,6 @@ To export CSV tables from MongoDB
 **Location table**
 
 `mongoexport --db atp --collection atpplayers --type=csv --fields _ID,Tournament,City,State,Country --out c:\table_Location.csv`
+
+## CSV Tabels
+These export are already at Code files as 7 Zip's, one per table
