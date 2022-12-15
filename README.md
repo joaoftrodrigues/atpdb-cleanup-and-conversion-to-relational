@@ -72,7 +72,7 @@ SELECT player.Name,COUNT(*) as total
 from player, gameround, tournament
 where player.ID=gameround.ID and gameround.ID=tournament.ID and (gameround.Result="W" or gameround.Result="L") 
 and tournament.TournamentName IN("Australian Open","Roland Garros","Wimbledon", "US Open")
-group by player.Name
+group by player.Name`
 
 SELECT player.Name as "Player Name", count(*) / total_wl_.total as "Winning games(%)" 
 FROM player, tournament, gameround, handskill, total_wl_ 
