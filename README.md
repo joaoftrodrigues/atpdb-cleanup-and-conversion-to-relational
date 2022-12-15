@@ -52,7 +52,7 @@ To run the queries, it's needed to import all the 3 files, which can be done wit
 
 
 ## Queries
-**1 - começei, nao correu tudo no meu** 
+**1 - Number of players, tournaments and rounds per Country** 
 
 
 
@@ -67,7 +67,7 @@ LIMIT 10`
 
 
 
-**2 - resultados semelhantes ao mestrado , verificar na nossa bd**
+**2 - List of top 10 players on winnin rate**
 
 `CREATE view totalwl AS
 SELECT player.Name,COUNT(*) as total 
@@ -86,7 +86,7 @@ LIMIT 10`
 
 ![image](https://user-images.githubusercontent.com/119869654/207866098-8420ffb7-e3cc-485c-8db2-172b8f260cf6.png)
 
-**3 - resultados iguaisisnhos mestrado**
+**3 - Top 10 of left-handed players in Grand Slam games, showing win rate in that tournament**
 
 `CREATE view total_wl_ AS
 SELECT player.Name,COUNT(*) as total 
@@ -107,7 +107,7 @@ LIMIT 10`
 ![image](https://user-images.githubusercontent.com/119869654/207865376-ca6706bb-ba47-4a09-80b0-08aed10643cb.png)
 
 
-**4 - resultados iguaisinhos mestrado**
+**4 - Top 5 players in hard ground, showing number of wins**
 
 `SELECT player.Name,COUNT(gameround.Result) from player,gameround,tournament where player.ID=gameround.ID and gameround.ID=tournament.ID and gameround.Result="W" and tournament.Ground="Hard" GROUP BY player.Name ORDER BY 2 DESC limit 5`
 
