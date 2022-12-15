@@ -84,6 +84,8 @@ GROUP BY player.Name
 ORDER BY 2 DESC 
 LIMIT 10`
 
+![image](https://user-images.githubusercontent.com/119869654/207866098-8420ffb7-e3cc-485c-8db2-172b8f260cf6.png)
+
 **3 - resultados iguaisisnhos mestrado**
 
 `CREATE view total_wl_ AS
@@ -102,10 +104,14 @@ GROUP BY player.Name
 ORDER BY 2 DESC 
 LIMIT 10`
 
+![image](https://user-images.githubusercontent.com/119869654/207865376-ca6706bb-ba47-4a09-80b0-08aed10643cb.png)
+
+
 **4 - resultados iguaisinhos mestrado**
 
 `SELECT player.Name,COUNT(gameround.Result) from player,gameround,tournament where player.ID=gameround.ID and gameround.ID=tournament.ID and gameround.Result="W" and tournament.Ground="Hard" GROUP BY player.Name ORDER BY 2 DESC limit 5`
 
-![image](https://user-images.githubusercontent.com/119869654/207859929-1fd169cb-14d4-4841-b3e8-bd0fddb085f9.png)
+![image](https://user-images.githubusercontent.com/119869654/207866412-3e7ea870-7050-4674-afb4-68a18923dddc.png)
+
 
 
